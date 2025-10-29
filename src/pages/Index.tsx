@@ -213,11 +213,11 @@ const Index = () => {
           <div className="flex items-center justify-center mb-4">
             <Shield className="w-5 h-5 text-green-500 mr-2" />
             <span className="text-slate-600 dark:text-slate-300 font-medium">
-              Privacy First - All processing happens locally in your browser
+              Secure & Private - Your data stays on your device
             </span>
           </div>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Built with ❤️ for developers and creators worldwide
+            © 2025 Meherub Hossain Yemon. All rights reserved.
           </p>
         </div>
       </footer>
