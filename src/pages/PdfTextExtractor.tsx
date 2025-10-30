@@ -5,6 +5,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Type, Upload, Download, Copy, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import * as pdfjsLib from "pdfjs-dist";
+import pdfWorker from "pdfjs-dist/build/pdf.worker.min?url";
+
+// Set the worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 const PdfTextExtractor = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -24,31 +29,53 @@ const PdfTextExtractor = () => {
     
     setIsExtracting(true);
     try {
+      // Load the PDF
       const arrayBuffer = await file.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
-      const text = new TextDecoder('utf-8', { fatal: false }).decode(uint8Array);
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       
-      // Look for simple text patterns
-      const simpleText = extractSimpleText(text);
+      let fullText = "";
       
-      if (simpleText) {
-        setExtractedText(simpleText);
+      // Extract text from each page
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const pageText = textContent.items
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .filter((item: any) => !!(item as any).str)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((item: any) => (item as any).str)
+          .join(" ");
+        fullText += pageText + "\n\n";
+      }
+      
+      if (fullText.trim()) {
+        setExtractedText(fullText.trim());
         toast({
           title: "Success",
-          description: "Text content found!",
+          description: `Text extracted from ${pdf.numPages} page(s)!`,
         });
       } else {
-        const infoText = `PDF Analysis Complete\n\nFile: ${file.name}\nSize: ${(file.size / 1024).toFixed(1)} KB\n\nThis PDF appears to contain:\n• Compressed or encoded text\n• Images or scanned content\n• Complex formatting\n\nFor full text extraction, try:\n1. Using Adobe Reader's copy function\n2. Converting to a text-based PDF\n3. Using OCR software for scanned documents`;
+        const infoText = `No extractable text found in this PDF.
+
+This PDF may contain:
+• Scanned images
+• Protected content
+• Complex formatting that cannot be converted to text
+
+Try:
+1. Using OCR software for scanned documents
+2. Checking if the PDF has copy protection`;
         
         setExtractedText(infoText);
         toast({
-          title: "Analysis Complete",
-          description: "PDF analyzed - see details below",
+          title: "No Text Found",
+          description: "No extractable text in this PDF",
         });
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('PDF extraction error:', error);
-      setExtractedText("Error: Could not process this PDF file.");
+      setExtractedText(`Error: ${(error as Error).message || "Could not process this PDF file."}`);
       toast({
         title: "Error",
         description: "Failed to process PDF",
@@ -60,29 +87,7 @@ const PdfTextExtractor = () => {
   };
 
   const extractSimpleText = (pdfContent: string): string => {
-    const textMatches = pdfContent.match(/\(([^)]+)\)/g);
-    if (textMatches) {
-      const cleanText = textMatches
-        .map(match => match.slice(1, -1))
-        .filter(text => {
-          // Filter out metadata patterns
-          if (!text || text.length < 2) return false;
-          if (/^jsPDF/i.test(text)) return false;
-          if (/^D:\d{14}/.test(text)) return false;
-          if (/^\d{4}-\d{2}-\d{2}/.test(text)) return false;
-          if (/^[\d\s\+\-:]+$/.test(text)) return false;
-          if (/^\d+\.\d+\.\d+/.test(text)) return false;
-          
-          // Must contain actual words
-          return /[a-zA-Z]/.test(text) && text.split(/\s+/).length >= 1;
-        })
-        .join(' ');
-      
-      if (cleanText.length > 5) {
-        return cleanText;
-      }
-    }
-    
+    // This function is no longer needed with proper PDF.js implementation
     return null;
   };
 
@@ -128,7 +133,7 @@ const PdfTextExtractor = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          <Link to="/" className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6">
+          <Link to="/" className="inline-flex items-center text-blue-600 hover:text-blue-700 zmb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Tools
           </Link>
