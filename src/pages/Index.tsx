@@ -42,14 +42,7 @@ const tools = [
     color: "from-orange-500 to-red-500",
     category: "Document & PDF Tools"
   },
-  {
-    name: "PDF to Image Converter",
-    description: "Export pages as PNG/JPEG",
-    icon: FileImage,
-    path: "/pdf-to-image",
-    color: "from-purple-500 to-pink-500",
-    category: "Document & PDF Tools"
-  },
+
   {
     name: "Image to PDF Converter",
     description: "Upload images and generate a PDF",
@@ -74,14 +67,7 @@ const tools = [
     color: "from-teal-500 to-cyan-500",
     category: "Document & PDF Tools"
   },
-  {
-    name: "PDF Password Protector",
-    description: "Add encryption and password protection",
-    icon: Lock,
-    path: "/pdf-password-protector",
-    color: "from-slate-500 to-gray-500",
-    category: "Document & PDF Tools"
-  },
+
   {
     name: "PDF Text Extractor",
     description: "Extract text from uploaded PDFs",
