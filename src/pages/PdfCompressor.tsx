@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Archive, Upload, Download, ArrowLeft } from "lucide-react";
+import { Archive, Upload, Download, ArrowLeft, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PDFDocument } from "pdf-lib";
+import { toast } from "sonner";
 
 const PdfCompressor = () => {
   const [file, setFile] = useState<File | null>(null);
   const [compressionLevel, setCompressionLevel] = useState("medium");
+  const [isCompressing, setIsCompressing] = useState(false);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -17,20 +19,51 @@ const PdfCompressor = () => {
 
   const compressPDF = async () => {
     if (!file) {
-      alert("Please select a PDF file");
+      toast.error("Please select a PDF file");
       return;
     }
 
+    setIsCompressing(true);
+    
     try {
       const arrayBuffer = await file.arrayBuffer();
       const pdfDoc = await PDFDocument.load(arrayBuffer);
       
-      // Basic compression by re-saving the PDF
-      // Note: pdf-lib has limited compression capabilities
-      const pdfBytes = await pdfDoc.save({
-        useObjectStreams: compressionLevel === 'high',
-        addDefaultPage: false,
-      });
+      // Apply compression based on selected level
+      let options;
+      
+      switch (compressionLevel) {
+        case "low":
+          options = {
+            useObjectStreams: false,
+            compress: true,
+            addDefaultPage: false,
+          };
+          break;
+        case "medium":
+          options = {
+            useObjectStreams: true,
+            compress: true,
+            addDefaultPage: false,
+          };
+          break;
+        case "high":
+          options = {
+            useObjectStreams: true,
+            compress: true,
+            addDefaultPage: false,
+          };
+          break;
+        default:
+          options = {
+            useObjectStreams: true,
+            compress: true,
+            addDefaultPage: false,
+          };
+      }
+      
+      // Save with compression options
+      const pdfBytes = await pdfDoc.save(options);
       
       const originalSize = file.size;
       const compressedSize = pdfBytes.length;
@@ -42,14 +75,22 @@ const PdfCompressor = () => {
       const a = document.createElement('a');
       a.href = url;
       a.download = `compressed-${file.name}`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       
       URL.revokeObjectURL(url);
       
-      alert(`PDF compressed! Original: ${(originalSize/1024/1024).toFixed(2)}MB, Compressed: ${(compressedSize/1024/1024).toFixed(2)}MB (${compressionRatio}% reduction)`);
+      toast.success(`PDF compressed successfully!`, {
+        description: `Original: ${(originalSize/1024/1024).toFixed(2)}MB, Compressed: ${(compressedSize/1024/1024).toFixed(2)}MB (${compressionRatio}% reduction)`
+      });
     } catch (error) {
       console.error('Error compressing PDF:', error);
-      alert('Error compressing PDF. Please make sure the file is a valid PDF document.');
+      toast.error("Error compressing PDF", {
+        description: "Please make sure the file is a valid PDF document."
+      });
+    } finally {
+      setIsCompressing(false);
     }
   };
 
@@ -108,6 +149,7 @@ const PdfCompressor = () => {
                     variant={compressionLevel === "low" ? "default" : "outline"}
                     onClick={() => setCompressionLevel("low")}
                     className="flex flex-col h-auto py-4"
+                    disabled={isCompressing}
                   >
                     <span className="font-medium">Low</span>
                     <span className="text-xs text-gray-500">Best Quality</span>
@@ -116,6 +158,7 @@ const PdfCompressor = () => {
                     variant={compressionLevel === "medium" ? "default" : "outline"}
                     onClick={() => setCompressionLevel("medium")}
                     className="flex flex-col h-auto py-4"
+                    disabled={isCompressing}
                   >
                     <span className="font-medium">Medium</span>
                     <span className="text-xs text-gray-500">Balanced</span>
@@ -124,6 +167,7 @@ const PdfCompressor = () => {
                     variant={compressionLevel === "high" ? "default" : "outline"}
                     onClick={() => setCompressionLevel("high")}
                     className="flex flex-col h-auto py-4"
+                    disabled={isCompressing}
                   >
                     <span className="font-medium">High</span>
                     <span className="text-xs text-gray-500">Smallest Size</span>
@@ -135,10 +179,19 @@ const PdfCompressor = () => {
                 onClick={compressPDF} 
                 className="w-full" 
                 size="lg"
-                disabled={!file}
+                disabled={!file || isCompressing}
               >
-                <Download className="w-4 h-4 mr-2" />
-                Compress PDF
+                {isCompressing ? (
+                  <>
+                    <Zap className="w-4 h-4 mr-2 animate-pulse" />
+                    Compressing...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Compress PDF
+                  </>
+                )}
               </Button>
             </div>
           </Card>

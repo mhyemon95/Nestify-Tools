@@ -5,7 +5,7 @@ import {
   Image, QrCode, Scan, FileText, FileCode, Palette, 
   Scale, TestTube, Braces, FileType, Zap, Shield, Clock,
   FilePlus, GitMerge, Scissors, Archive, FileImage, ImageIcon,
-  Edit3, FormInput, Lock, Type
+  Edit3, FormInput, Lock, Type, Wand2, Package
 } from "lucide-react";
 
 const tools = [
@@ -83,6 +83,22 @@ const tools = [
     icon: Image,
     path: "/image-resizer",
     color: "from-blue-500 to-cyan-500",
+    category: "Utility & Productivity Tools"
+  },
+  {
+    name: "Image Size Compressor",
+    description: "Reduce image file sizes while maintaining quality",
+    icon: Package,
+    path: "/image-size-compressor",
+    color: "from-green-500 to-emerald-500",
+    category: "Utility & Productivity Tools"
+  },
+  {
+    name: "Background Image Remove",
+    description: "Automatically remove backgrounds from your images with AI",
+    icon: Wand2,
+    path: "/background-image-remove",
+    color: "from-purple-500 to-pink-500",
     category: "Utility & Productivity Tools"
   },
   {

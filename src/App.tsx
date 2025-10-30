@@ -25,6 +25,8 @@ import PdfAnnotator from "./pages/PdfAnnotator";
 import PdfFormFiller from "./pages/PdfFormFiller";
 import PdfPasswordProtector from "./pages/PdfPasswordProtector";
 import PdfTextExtractor from "./pages/PdfTextExtractor";
+import BackgroundImageRemove from "./pages/BackgroundImageRemove";
+import ImageSizeCompressor from "./pages/ImageSizeCompressor";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +58,8 @@ const App = () => (
           <Route path="/pdf-form-filler" element={<PdfFormFiller />} />
           <Route path="/pdf-password-protector" element={<PdfPasswordProtector />} />
           <Route path="/pdf-text-extractor" element={<PdfTextExtractor />} />
+          <Route path="/background-image-remove" element={<BackgroundImageRemove />} />
+          <Route path="/image-size-compressor" element={<ImageSizeCompressor />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
