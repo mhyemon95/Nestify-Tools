@@ -1,9 +1,28 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { GitMerge, Upload, Download, X, ArrowLeft } from "lucide-react";
+import { GitMerge, Upload, Download, X, ArrowLeft, GripVertical } from "lucide-react";
 import { Link } from "react-router-dom";
 import { PDFDocument } from "pdf-lib";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const PdfMerger = () => {
   const [files, setFiles] = useState<File[]>([]);
@@ -16,6 +35,25 @@ const PdfMerger = () => {
 
   const removeFile = (index: number) => {
     setFiles(files.filter((_, i) => i !== index));
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      setFiles((items) => {
+        const oldIndex = items.findIndex((_, i) => i.toString() === active.id);
+        const newIndex = items.findIndex((_, i) => i.toString() === over?.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
   };
 
   const mergePDFs = async () => {
@@ -102,22 +140,19 @@ const PdfMerger = () => {
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
                     Selected Files ({files.length})
                   </h3>
-                  <div className="space-y-2">
-                    {files.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                          {file.name}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeFile(index)}
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext items={files.map((_, i) => i.toString())} strategy={verticalListSortingStrategy}>
+                      <div className="space-y-2">
+                        {files.map((file, index) => (
+                          <SortableItem key={index} id={index.toString()} file={file} onRemove={() => removeFile(index)} />
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    </SortableContext>
+                  </DndContext>
                 </div>
               )}
 
@@ -134,6 +169,51 @@ const PdfMerger = () => {
           </Card>
         </div>
       </div>
+    </div>
+  );
+};
+
+interface SortableItemProps {
+  id: string;
+  file: File;
+  onRemove: () => void;
+}
+
+const SortableItem = ({ id, file, onRemove }: SortableItemProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-800 rounded-lg"
+    >
+      <div className="flex items-center gap-2">
+        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+          <GripVertical className="w-4 h-4 text-gray-400" />
+        </div>
+        <span className="text-sm text-gray-700 dark:text-gray-300">
+          {file.name}
+        </span>
+      </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={onRemove}
+      >
+        <X className="w-4 h-4" />
+      </Button>
     </div>
   );
 };
