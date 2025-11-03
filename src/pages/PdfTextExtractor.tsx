@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Type, Upload, Download, Copy, ArrowLeft } from "lucide-react";
+import { Type, Upload, Download, Copy, ArrowLeft, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min?url";
+import { imageToText } from "@shanto-kumar/image-to-text-convert";
 
 // Set the worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
@@ -15,6 +16,7 @@ const PdfTextExtractor = () => {
   const [file, setFile] = useState<File | null>(null);
   const [extractedText, setExtractedText] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
+  const [useOCR, setUseOCR] = useState(false);
   const { toast } = useToast();
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,49 +31,10 @@ const PdfTextExtractor = () => {
     
     setIsExtracting(true);
     try {
-      // Load the PDF
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      
-      let fullText = "";
-      
-      // Extract text from each page
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const pageText = textContent.items
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .filter((item: any) => !!(item as any).str)
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((item: any) => (item as any).str)
-          .join(" ");
-        fullText += pageText + "\n\n";
-      }
-      
-      if (fullText.trim()) {
-        setExtractedText(fullText.trim());
-        toast({
-          title: "Success",
-          description: `Text extracted from ${pdf.numPages} page(s)!`,
-        });
+      if (useOCR) {
+        await extractTextWithOCR();
       } else {
-        const infoText = `No extractable text found in this PDF.
-
-This PDF may contain:
-• Scanned images
-• Protected content
-• Complex formatting that cannot be converted to text
-
-Try:
-1. Using OCR software for scanned documents
-2. Checking if the PDF has copy protection`;
-        
-        setExtractedText(infoText);
-        toast({
-          title: "No Text Found",
-          description: "No extractable text in this PDF",
-        });
+        await extractTextNormal();
       }
     } catch (error) {
       console.error('PDF extraction error:', error);
@@ -86,10 +49,88 @@ Try:
     }
   };
 
-  const extractSimpleText = (pdfContent: string): string => {
-    // This function is no longer needed with proper PDF.js implementation
-    return null;
+  const extractTextNormal = async () => {
+    const arrayBuffer = await file!.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    
+    let fullText = "";
+    
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const pageText = textContent.items
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .filter((item: any) => !!(item as any).str)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .map((item: any) => (item as any).str)
+        .join(" ");
+      fullText += pageText + "\n\n";
+    }
+    
+    if (fullText.trim()) {
+      setExtractedText(fullText.trim());
+      toast({
+        title: "Success",
+        description: `Text extracted from ${pdf.numPages} page(s)!`,
+      });
+    } else {
+      const infoText = `No extractable text found in this PDF.\n\nTry enabling OCR mode for scanned documents or Bangla text.`;
+      setExtractedText(infoText);
+      toast({
+        title: "No Text Found",
+        description: "Try OCR mode for better results",
+      });
+    }
   };
+
+  const extractTextWithOCR = async () => {
+    const arrayBuffer = await file!.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    
+    let fullText = "";
+    
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({ scale: 2.0 });
+      
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d')!;
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      
+      await page.render({ canvasContext: context, viewport }).promise;
+      
+      const imageDataUrl = canvas.toDataURL('image/png');
+      const response = await fetch(imageDataUrl);
+      const blob = await response.blob();
+      const imageFile = new File([blob], `page-${i}.png`, { type: 'image/png' });
+      
+      try {
+        const pageText = await imageToText(imageFile);
+        fullText += pageText + "\n\n";
+      } catch (ocrError) {
+        console.warn(`OCR failed for page ${i}:`, ocrError);
+        fullText += `[OCR failed for page ${i}]\n\n`;
+      }
+    }
+    
+    if (fullText.trim()) {
+      setExtractedText(fullText.trim());
+      toast({
+        title: "Success",
+        description: `Text extracted using OCR from ${pdf.numPages} page(s)!`,
+      });
+    } else {
+      setExtractedText("No text could be extracted using OCR.");
+      toast({
+        title: "No Text Found",
+        description: "OCR could not extract text from this PDF",
+      });
+    }
+  };
+
+
 
   const copyToClipboard = async () => {
     try {
@@ -175,14 +216,30 @@ Try:
                 </div>
               </div>
 
-              <Button 
-                onClick={extractText} 
-                className="w-full" 
-                size="lg"
-                disabled={!file || isExtracting}
-              >
-                {isExtracting ? "Extracting..." : "Extract Text"}
-              </Button>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="ocr-mode"
+                    checked={useOCR}
+                    onChange={(e) => setUseOCR(e.target.checked)}
+                    className="rounded"
+                  />
+                  <label htmlFor="ocr-mode" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
+                    <Eye className="w-4 h-4 mr-1" />
+                    Use OCR (Better for Bangla text & scanned PDFs)
+                  </label>
+                </div>
+                
+                <Button 
+                  onClick={extractText} 
+                  className="w-full" 
+                  size="lg"
+                  disabled={!file || isExtracting}
+                >
+                  {isExtracting ? (useOCR ? "Processing with OCR..." : "Extracting...") : "Extract Text"}
+                </Button>
+              </div>
 
               {extractedText && (
                 <div>
