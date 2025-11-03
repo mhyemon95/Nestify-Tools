@@ -10,10 +10,21 @@ const PdfSplitter = () => {
   const [file, setFile] = useState<File | null>(null);
   const [splitType, setSplitType] = useState("pages");
   const [pageRange, setPageRange] = useState("");
+  const [totalPages, setTotalPages] = useState<number | null>(null);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      
+      try {
+        const arrayBuffer = await selectedFile.arrayBuffer();
+        const pdfDoc = await PDFDocument.load(arrayBuffer);
+        setTotalPages(pdfDoc.getPageCount());
+      } catch (error) {
+        console.error('Error reading PDF:', error);
+        setTotalPages(null);
+      }
     }
   };
 
@@ -138,7 +149,7 @@ const PdfSplitter = () => {
               {splitType === "pages" && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Page Range (e.g., 1-5, 10-15)
+                    Page Range (e.g., 1-5, 10-15){totalPages && ` - Total pages: ${totalPages}`}
                   </label>
                   <Input
                     placeholder="Enter page ranges separated by commas"
