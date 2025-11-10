@@ -5,7 +5,7 @@ import {
   Image, QrCode, Scan, FileText, FileCode, Palette, 
   Scale, TestTube, Braces, FileType, Zap, Shield, Clock,
   FilePlus, GitMerge, Scissors, Archive, FileImage, ImageIcon,
-  Edit3, FormInput, Lock, Type, Wand2, Package
+  Edit3, FormInput, Lock, Type, Wand2, Package, RotateCw
 } from "lucide-react";
 
 const tools = [
@@ -74,6 +74,14 @@ const tools = [
     icon: Type,
     path: "/pdf-text-extractor",
     color: "from-indigo-500 to-purple-500",
+    category: "Document & PDF Tools"
+  },
+  {
+    name: "PDF Page Reorder",
+    description: "Rearrange or rotate specific pages",
+    icon: RotateCw,
+    path: "/pdf-page-reorder",
+    color: "from-purple-500 to-pink-500",
     category: "Document & PDF Tools"
   },
   // Utility & Productivity Tools
