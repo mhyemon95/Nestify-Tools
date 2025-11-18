@@ -5,7 +5,8 @@ import {
   Image, QrCode, Scan, FileText, FileCode, Palette, 
   Scale, TestTube, Braces, FileType, Zap, Shield, Clock,
   FilePlus, GitMerge, Scissors, Archive, FileImage, ImageIcon,
-  Edit3, FormInput, Lock, Type, Wand2, Package, RotateCw
+  Edit3, FormInput, Lock, Type, Wand2, Package, RotateCw,
+  Eye, Pen, RefreshCw
 } from "lucide-react";
 
 const tools = [
@@ -81,6 +82,30 @@ const tools = [
     description: "Rearrange or rotate specific pages",
     icon: RotateCw,
     path: "/pdf-page-reorder",
+    color: "from-purple-500 to-pink-500",
+    category: "Document & PDF Tools"
+  },
+  {
+    name: "Word to PDF Converter",
+    description: "Convert Word documents to PDF format",
+    icon: FileText,
+    path: "/word-to-pdf",
+    color: "from-green-500 to-emerald-500",
+    category: "Document & PDF Tools"
+  },
+  {
+    name: "Image to Text (OCR)",
+    description: "Extract text from images using optical character recognition",
+    icon: Eye,
+    path: "/image-to-text",
+    color: "from-orange-500 to-red-500",
+    category: "Document & PDF Tools"
+  },
+  {
+    name: "eSign PDF",
+    description: "Add digital signatures to your PDF documents",
+    icon: Pen,
+    path: "/pdf-esign",
     color: "from-purple-500 to-pink-500",
     category: "Document & PDF Tools"
   },
@@ -179,6 +204,14 @@ const tools = [
     icon: FileType,
     path: "/file-metadata",
     color: "from-gray-500 to-slate-500",
+    category: "Utility & Productivity Tools"
+  },
+  {
+    name: "Image Converter",
+    description: "Convert between PNG, JPG, and WebP formats",
+    icon: RefreshCw,
+    path: "/image-converter",
+    color: "from-indigo-500 to-purple-500",
     category: "Utility & Productivity Tools"
   }
 ];
