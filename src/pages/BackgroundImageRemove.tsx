@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Download, Upload, Zap, Palette, Eye } from "lucide-react";
+import { Download, Upload, Zap, Palette, Eye, Layers } from "lucide-react";
 import { removeBackground } from "@imgly/background-removal";
 
 const BackgroundImageRemove = () => {
@@ -31,35 +31,56 @@ const BackgroundImageRemove = () => {
     }
   };
 
+  const compressImage = (dataUrl: string, quality: number = 0.7): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxWidth = 1024;
+        const maxHeight = 1024;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = dataUrl;
+    });
+  };
+
   const removeBackgroundFromImage = async () => {
     if (!originalImage) return;
 
     try {
       setIsLoading(true);
-      setProgress(0);
+      setProgress(50);
       
-      // Simulate progress updates
-      const progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return prev;
-          }
-          return prev + 10;
-        });
-      }, 300);
-
-      // Process the image
-      const blob = await removeBackground(originalImage);
-      clearInterval(progressInterval);
+      const compressedImage = await compressImage(originalImage);
+      setProgress(75);
+      
+      const blob = await removeBackground(compressedImage);
       setProgress(100);
       
-      // Convert blob to data URL
       const reader = new FileReader();
       reader.onload = () => {
         const transparentImg = reader.result as string;
         setTransparentImage(transparentImg);
-        setProcessedImage(transparentImg); // Initially show transparent version
+        setProcessedImage(transparentImg);
         setIsLoading(false);
         toast.success("Background removed successfully!");
       };
@@ -235,6 +256,15 @@ const BackgroundImageRemove = () => {
                       Apply
                     </Button>
                   </div>
+                  
+                  <Button 
+                    onClick={() => setProcessedImage(transparentImage)}
+                    variant="outline" 
+                    className="flex items-center"
+                  >
+                    <Layers className="w-4 h-4 mr-2" />
+                    Transparent
+                  </Button>
                   
                   <Button 
                     onClick={downloadImage} 
