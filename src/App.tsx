@@ -32,6 +32,8 @@ import PdfESign from "./pages/PdfESign";
 import ImageConverter from "./pages/ImageConverter";
 import BackgroundImageRemove from "./pages/BackgroundImageRemove";
 import ImageSizeCompressor from "./pages/ImageSizeCompressor";
+import PasswordGenerator from "./pages/PasswordGenerator";
+import CsvViewer from "./pages/CsvViewer";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +72,8 @@ const App = () => (
           <Route path="/image-converter" element={<ImageConverter />} />
           <Route path="/background-image-remove" element={<BackgroundImageRemove />} />
           <Route path="/image-size-compressor" element={<ImageSizeCompressor />} />
+          <Route path="/password-generator" element={<PasswordGenerator />} />
+          <Route path="/csv-viewer" element={<CsvViewer />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

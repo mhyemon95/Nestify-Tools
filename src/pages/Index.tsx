@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  Image, QrCode, Scan, FileText, FileCode, Palette, 
+import {
+  Image, QrCode, Scan, FileText, FileCode, Palette,
   Scale, TestTube, Braces, FileType, Zap, Shield, Clock,
   FilePlus, GitMerge, Scissors, Archive, FileImage, ImageIcon,
   Edit3, FormInput, Lock, Type, Wand2, Package, RotateCw,
@@ -213,6 +213,22 @@ const tools = [
     path: "/image-converter",
     color: "from-indigo-500 to-purple-500",
     category: "Utility & Productivity Tools"
+  },
+  {
+    name: "Password Generator",
+    description: "Create strong, secure passwords instantly",
+    icon: Lock,
+    path: "/password-generator",
+    color: "from-red-500 to-pink-500",
+    category: "Utility & Productivity Tools"
+  },
+  {
+    name: "CSV Viewer & Converter",
+    description: "View CSV files and convert to JSON",
+    icon: FileText,
+    path: "/csv-viewer",
+    color: "from-green-500 to-emerald-500",
+    category: "Utility & Productivity Tools"
   }
 ];
 
@@ -260,13 +276,13 @@ const Index = () => {
       <section className="py-20 lg:py-32 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-4xl mx-auto">
-           
+
             <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-3">
               Professional Online
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"> Toolkit</span>
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-12 leading-relaxed max-w-3xl mx-auto">
-              Streamline your workflow with our comprehensive suite of professional-grade tools. 
+              Streamline your workflow with our comprehensive suite of professional-grade tools.
               From PDF processing to productivity utilities, everything you need in one place.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-1">
@@ -296,8 +312,8 @@ const Index = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {tools.filter(tool => tool.category === "Document & PDF Tools").map((tool, index) => (
-                <Link 
-                  key={tool.path} 
+                <Link
+                  key={tool.path}
                   to={tool.path}
                   className="group"
                 >
@@ -333,8 +349,8 @@ const Index = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {tools.filter(tool => tool.category === "Utility & Productivity Tools").map((tool, index) => (
-                <Link 
-                  key={tool.path} 
+                <Link
+                  key={tool.path}
                   to={tool.path}
                   className="group"
                 >
