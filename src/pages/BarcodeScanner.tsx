@@ -27,8 +27,8 @@ const BarcodeScanner = () => {
       setIsScanning(true);
 
       const config = {
-        fps: 10,
-        qrbox: 250,
+        fps: 30, // Increased from 10 to 30 for faster detection
+        qrbox: { width: 300, height: 300 }, // Larger scanning box for better detection
         aspectRatio: 1.0,
         disableFlip: false
       };
@@ -56,7 +56,7 @@ const BarcodeScanner = () => {
 
   const stopScanning = () => {
     if (scannerRef.current) {
-      scannerRef.current.clear().catch(() => {});
+      scannerRef.current.clear().catch(() => { });
       scannerRef.current = null;
     }
     setIsScanning(false);
@@ -158,7 +158,14 @@ const BarcodeScanner = () => {
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
                   <strong>Supported formats:</strong> QR Code, Code 128, Code 39, EAN-13, EAN-8, UPC-A, UPC-E, and more.
-                  Make sure to allow camera access when prompted.
+                  <br /><br />
+                  <strong>Scanning tips:</strong>
+                  <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
+                    <li>Hold the QR code steady within the scanning box</li>
+                    <li>Ensure good lighting - avoid shadows and glare</li>
+                    <li>Keep the QR code at a distance of 10-30cm from the camera</li>
+                    <li>Make sure the QR code is not too small or pixelated</li>
+                  </ul>
                 </AlertDescription>
               </Alert>
             </div>
