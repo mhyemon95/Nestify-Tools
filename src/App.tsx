@@ -34,6 +34,13 @@ import BackgroundImageRemove from "./pages/BackgroundImageRemove";
 import ImageSizeCompressor from "./pages/ImageSizeCompressor";
 import PasswordGenerator from "./pages/PasswordGenerator";
 import CsvViewer from "./pages/CsvViewer";
+import ImageCropper from "./pages/ImageCropper";
+import WatermarkTool from "./pages/WatermarkTool";
+import ImageFilterEditor from "./pages/ImageFilterEditor";
+import FaviconGenerator from "./pages/FaviconGenerator";
+import MemeGenerator from "./pages/MemeGenerator";
+import ImageMetadataViewer from "./pages/ImageMetadataViewer";
+import SvgToPngConverter from "./pages/SvgToPngConverter";
 
 const queryClient = new QueryClient();
 
@@ -74,6 +81,13 @@ const App = () => (
           <Route path="/image-size-compressor" element={<ImageSizeCompressor />} />
           <Route path="/password-generator" element={<PasswordGenerator />} />
           <Route path="/csv-viewer" element={<CsvViewer />} />
+          <Route path="/image-cropper" element={<ImageCropper />} />
+          <Route path="/watermark-tool" element={<WatermarkTool />} />
+          <Route path="/image-filter-editor" element={<ImageFilterEditor />} />
+          <Route path="/favicon-generator" element={<FaviconGenerator />} />
+          <Route path="/meme-generator" element={<MemeGenerator />} />
+          <Route path="/image-metadata-viewer" element={<ImageMetadataViewer />} />
+          <Route path="/svg-to-png-converter" element={<SvgToPngConverter />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

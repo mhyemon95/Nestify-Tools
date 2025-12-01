@@ -6,7 +6,7 @@ import {
   Scale, TestTube, Braces, FileType, Zap, Shield, Clock,
   FilePlus, GitMerge, Scissors, Archive, FileImage, ImageIcon,
   Edit3, FormInput, Lock, Type, Wand2, Package, RotateCw,
-  Eye, Pen, RefreshCw
+  Eye, Pen, RefreshCw, Crop, Droplet, Sparkles, Globe, Smile, Info
 } from "lucide-react";
 
 const tools = [
@@ -228,6 +228,62 @@ const tools = [
     icon: FileText,
     path: "/csv-viewer",
     color: "from-green-500 to-emerald-500",
+    category: "Utility & Productivity Tools"
+  },
+  {
+    name: "Image Cropper",
+    description: "Crop images with custom aspect ratios and precision controls",
+    icon: Crop,
+    path: "/image-cropper",
+    color: "from-amber-500 to-orange-500",
+    category: "Utility & Productivity Tools"
+  },
+  {
+    name: "Watermark Tool",
+    description: "Add text or image watermarks to protect your photos",
+    icon: Droplet,
+    path: "/watermark-tool",
+    color: "from-cyan-500 to-blue-500",
+    category: "Utility & Productivity Tools"
+  },
+  {
+    name: "Image Filter Editor",
+    description: "Apply professional filters and adjustments to images",
+    icon: Sparkles,
+    path: "/image-filter-editor",
+    color: "from-violet-500 to-purple-500",
+    category: "Utility & Productivity Tools"
+  },
+  {
+    name: "Favicon Generator",
+    description: "Create favicons in multiple sizes for your website",
+    icon: Globe,
+    path: "/favicon-generator",
+    color: "from-emerald-500 to-teal-500",
+    category: "Utility & Productivity Tools"
+  },
+  {
+    name: "Meme Generator",
+    description: "Create memes with customizable text and styling",
+    icon: Smile,
+    path: "/meme-generator",
+    color: "from-pink-500 to-rose-500",
+    category: "Utility & Productivity Tools"
+  },
+  {
+    name: "Image Metadata Viewer",
+    description: "View EXIF data and detailed image information",
+    icon: Info,
+    path: "/image-metadata-viewer",
+    color: "from-slate-500 to-gray-500",
+    category: "Utility & Productivity Tools"
+  },
+  {
+    name: "SVG to PNG Converter",
+    description: "Convert SVG files to PNG with custom sizing",
+    icon: FileImage,
+    path: "/svg-to-png-converter",
+    color: "from-indigo-500 to-blue-500",
     category: "Utility & Productivity Tools"
   }
 ];
