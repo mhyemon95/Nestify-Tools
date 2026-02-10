@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 import {
   Image, QrCode, Scan, FileText, FileCode, Palette,
-  Scale, TestTube, Braces, FileType, Zap, Shield, Clock,
+  Scale, TestTube, Braces, FileType, Zap, Shield,
   FilePlus, GitMerge, Scissors, Archive, FileImage, ImageIcon,
   Edit3, FormInput, Lock, Type, Wand2, Package, RotateCw,
-  Eye, Pen, RefreshCw, Crop, Droplet, Sparkles, Globe, Smile, Info
+  Eye, Pen, RefreshCw, Crop, Droplet, Sparkles, Globe, Smile, Info, Moon, Sun, Menu, X
 } from "lucide-react";
 
 const tools = [
@@ -288,43 +289,127 @@ const tools = [
   }
 ];
 
-const features = [
-  {
-    icon: Zap,
-    title: "Lightning Fast",
-    description: "All tools run instantly in your browser"
-  },
-  {
-    icon: Shield,
-    title: "100% Private",
-    description: "Your data never leaves your device"
-  },
-  {
-    icon: Clock,
-    title: "Always Available",
-    description: "Works offline, no registration required"
-  }
-];
+
 
 const Index = () => {
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem('theme');
+    return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDark]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
       {/* Navigation */}
-      <nav className="border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
+      <nav className={`bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 transition-all duration-300 ${
+        isScrolled ? 'shadow-lg shadow-gray-200/50 dark:shadow-gray-950/50' : ''
+      }`}>
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="flex items-center justify-between h-20">
+            {/* Logo */}
+            <Link to="/" className="flex items-center space-x-3 group">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl blur opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                <div className="relative w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-white" />
+                </div>
               </div>
-              <span className="text-xl font-bold text-gray-900 dark:text-white">Nestify Tools</span>
+              <div className="flex flex-col">
+                <span className="text-lg font-bold text-gray-900 dark:text-white leading-tight">Nestify Tools</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Professional Toolkit</span>
+              </div>
+            </Link>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
+              <a 
+                href="#pdf-tools" 
+                className="text-sm font-medium text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors relative group"
+              >
+                PDF Tools
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+              </a>
+              <a 
+                href="#utility-tools" 
+                className="text-sm font-medium text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors relative group"
+              >
+                Utilities
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></span>
+              </a>
+              <button
+                onClick={() => setIsDark(!isDark)}
+                className="relative p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all group"
+                aria-label="Toggle theme"
+              >
+                <div className="relative w-5 h-5">
+                  {isDark ? (
+                    <Sun className="w-5 h-5 text-amber-500 animate-in spin-in-180 duration-500" />
+                  ) : (
+                    <Moon className="w-5 h-5 text-slate-600 animate-in spin-in-180 duration-500" />
+                  )}
+                </div>
+              </button>
             </div>
-            <div className="hidden md:flex items-center space-x-6">
-              <a href="#pdf-tools" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">PDF Tools</a>
-              <a href="#utility-tools" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">Utilities</a>
-              <a href="#features" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors">Features</a>
+
+            {/* Mobile Menu Button */}
+            <div className="flex md:hidden items-center space-x-3">
+              <button
+                onClick={() => setIsDark(!isDark)}
+                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                aria-label="Toggle theme"
+              >
+                {isDark ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5 text-slate-600" />}
+              </button>
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                aria-label="Toggle menu"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6 text-gray-700 dark:text-gray-300" /> : <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />}
+              </button>
             </div>
           </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden pb-4 animate-in slide-in-from-top duration-300">
+              <div className="flex flex-col space-y-1 pt-2 border-t border-gray-200 dark:border-gray-800">
+                <a 
+                  href="#pdf-tools" 
+                  onClick={() => setMobileMenuOpen(false)} 
+                  className="px-4 py-3 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-gray-800 rounded-lg transition-all"
+                >
+                  PDF Tools
+                </a>
+                <a 
+                  href="#utility-tools" 
+                  onClick={() => setMobileMenuOpen(false)} 
+                  className="px-4 py-3 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-blue-400 dark:hover:bg-gray-800 rounded-lg transition-all"
+                >
+                  Utilities
+                </a>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
@@ -354,7 +439,7 @@ const Index = () => {
       </section>
 
       {/* Tools Section */}
-      <section className="py-2 bg-gray-50 dark:bg-gray-800 -mt-11">
+      <section className="py-2 pb-20 bg-gray-50 dark:bg-gray-800 -mt-11">
         <div className="container mx-auto px-4">
           {/* Document & PDF Tools */}
           <div id="pdf-tools" className="mb-20 pt-20">
@@ -428,35 +513,6 @@ const Index = () => {
                 </Link>
               ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-20 bg-white dark:bg-gray-900">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Why Choose Nestify Tools?
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Built with privacy, performance, and user experience in mind
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {features.map((feature, index) => (
-              <div key={index} className="text-center p-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-2xl mb-6">
-                  <feature.icon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-                </div>
-                <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
           </div>
         </div>
       </section>
